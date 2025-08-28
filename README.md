@@ -47,11 +47,12 @@ Download hospital or organization documents (e.g., service descriptions, FAQs, a
 Place them inside:
 
 
-```data/
+<pre lang="text"><code>
+  data/
 |   └── hospital_docs/
 |      ├── file1.pdf
 |      ├── file2.html
-|      └── ...
+|      └── ... </code></pre>
 
 You can use:
 - PDFs (brochures, reports, guidelines)
