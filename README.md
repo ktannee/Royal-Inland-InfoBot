@@ -3,7 +3,7 @@ A Retrieval-Augmented Generation (RAG) powered chatbot that answers questions us
 This demo project uses LangChain, FAISS/Chroma, and Streamlit to make hospital information accessible through natural conversation.
 
 📂 Project Structure
-<pre lang="text"><code>``` 📁 royal-inland-infobot/ 
+<pre lang="text"><code> 📁 royal-inland-infobot/ 
   ├── data/ 
   │ └── hospital_docs/ 
   ├── chunks.pkl 
@@ -13,7 +13,7 @@ This demo project uses LangChain, FAISS/Chroma, and Streamlit to make hospital i
     └──embeddings.py 
     └──rag_pipeline.py 
   ├── requirements.txt 
-  └── README.md ```</code></pre>
+  └── README.md </code></pre>
 
 
 The MVP includes:
