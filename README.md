@@ -6,7 +6,7 @@ This demo project uses LangChain, FAISS/Chroma, and Streamlit to make hospital i
 <pre lang="text"><code> 📁 royal-inland-infobot/ 
   ├── data/ 
   │ └── hospital_docs/ 
-  ├── chunks.pkl 
+    └── chunks.pkl 
   ├── app/ 
   │ ├── chatbot_app.py 
   │ └── data_loader.py 
