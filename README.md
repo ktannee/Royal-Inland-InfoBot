@@ -17,7 +17,7 @@ This demo project uses LangChain, FAISS/Chroma, and Streamlit to make hospital i
 │ └── chatbot_app.py
 │
 ├── requirements.txt
-└── README.md```
+└── README.md
 
 The MVP includes:
 
@@ -50,8 +50,8 @@ Download hospital or organization documents (e.g., service descriptions, FAQs, a
 Place them inside:
 
 
-data/
-|└── hospital_docs/
+```data/
+|   └── hospital_docs/
 |      ├── file1.pdf
 |      ├── file2.html
 |      └── ...
