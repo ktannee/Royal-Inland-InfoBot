@@ -1,7 +1,7 @@
 # Royal-Inland-InfoBot
 A Hospital-Specific Chatbot Using RAG
 
-The MVP includes:
+The MVP includes:\ 
 ✔️ Fully open source stack with no API keys needed
 
 ✔️ Local embeddings + FAISS retrieval
