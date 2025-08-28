@@ -4,7 +4,7 @@ This demo project uses LangChain, FAISS/Chroma, and Streamlit to make hospital i
 
 📂 Project Structure
 
-royal-inland-infobot/
+``royal-inland-infobot/
 │
  ├── data/
 │ ├── hospital_docs/ 
@@ -17,7 +17,7 @@ royal-inland-infobot/
 │ └── chatbot_app.py
 │
  ├── requirements.txt
- └── README.md
+ └── README.md``
 
 The MVP includes:
 
