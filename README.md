@@ -77,15 +77,19 @@ This will start an interactive chatbot where you can query your own hospital/org
 
 ✅ Safety & Guardrails
 This chatbot includes built-in guardrails to ensure safe, ethical, and reliable use.
+
 🔹 Content Safety Guardrails
 Emergency handling → Detects critical phrases (e.g., chest pain, stroke, suicidal intent) and redirects to 911 or the Emergency Room.
 Medical disclaimer → Refuses to provide diagnoses or treatment. Instead, it redirects to HealthLink BC or a licensed doctor.
+
 🔹 Scope Restriction Guardrails
 Knowledge base only → If retrieval similarity is weak, the bot refuses to answer and provides a fallback message.
 No personal interpretation → Blocks queries that ask to interpret lab reports, MRI scans, or test results.
+
 🔹 Ethical & Legal Guardrails
 PII detection → Detects and blocks messages if the user shares personal information.
 Privacy reminder → Warns users not to share personal or sensitive details in the chat.
+
 🔹 Technical Guardrails
 Hallucination control → Requires at least 2 strong retrieval matches above a similarity threshold before generating an answer.
 Post-generation check → Filters out unsafe advice-like phrases and replaces them with safe redirection guidance.
