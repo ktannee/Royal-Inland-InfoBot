@@ -1,18 +1,11 @@
-# app.py
 import streamlit as st
 from urllib.parse import urlencode
 
 st.set_page_config(page_title="RIH Demo + Chat", page_icon="🏥", layout="wide")
 
-# ---- Optional: wire up your RAG here ----
 def get_answer(user_msg: str) -> str:
-    # TODO: replace with your real RAG call, e.g.:
-    # from app.rag_pipeline import rag_answer
-    # ans, ctx = rag_answer(user_msg, k=4)
-    # return ans
     return "Demo reply: this is where your RAG answer would appear."
 
-# ---- Routing by query param ----
 params = st.experimental_get_query_params()
 mode = params.get("mode", ["site"])[0]
 
@@ -61,7 +54,6 @@ if mode == "chat":
 
 # ================== SITE MODE (MOCKED HOMEPAGE) ==================
 else:
-    # Header / hero (keep generic for demo—do not copy brand assets verbatim)
     left, right = st.columns([3,2])
     with left:
         st.markdown("## Royal Inland Hospital — Demo Homepage")
@@ -86,10 +78,8 @@ else:
     st.markdown("#### News & Alerts (Demo)")
     st.info("⚠️ Example: Temporary changes to maternity services this weekend. For details, ask the chat assistant.")
 
-    # Floating chat widget (button + slide-up panel with iframe to ?mode=chat)
-    # We render an HTML block that pins bottom-right and toggles the chat panel with JS.
     query = urlencode({"mode":"chat"})
-    chat_url = f"/?{query}"  # same app, different mode
+    chat_url = f"/?{query}" 
 
     st.components.v1.html(
         f"""
