@@ -29,11 +29,15 @@ def load_faiss_index():
         chunks = pickle.load(f)
     return index, chunks
 
-def search(query, k=4):
+def search_with_scores(query, k=4):
     index, chunks = load_faiss_index()
     model = SentenceTransformer(EMB_MODEL_NAME)
     q_emb = model.encode([query], convert_to_numpy=True)
     faiss.normalize_L2(q_emb)
     D, I = index.search(q_emb, k)
-    results = [chunks[i] for i in I[0]]
+    # D are cosine similarities in [0,1]
+    results = [(chunks[i], float(D[0][j])) for j, i in enumerate(I[0])]
     return results
+
+def search(query, k=4):
+    return [c for c, _ in search_with_scores(query, k=k)]
