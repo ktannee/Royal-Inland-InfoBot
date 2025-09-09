@@ -79,7 +79,11 @@ This will start an interactive chatbot where you can query your own hospital/org
 This chatbot includes built-in guardrails to ensure safe, ethical, and reliable use.
 
 🔹 Content Safety Guardrails
+
 🔹 Scope Restriction Guardrails
+
 🔹 Ethical & Legal Guardrails
+
 🔹 Technical Guardrails
+
 🔹 Department Specific Routing Guardrails
