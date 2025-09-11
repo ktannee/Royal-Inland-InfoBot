@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 from pdfminer.high_level import extract_text
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from typing import Dict, List, Tuple
+from slug import slug
 
 DOC_ROOT = Path("data/hospital_docs")
 
@@ -32,7 +33,7 @@ def load_raw_texts_by_dept(root: Path = DOC_ROOT) -> Dict[str, List[str]]:
             elif p.suffix.lower() in {".txt", ".md"}:
                 texts.append(p.read_text(encoding="utf-8", errors="ignore"))
         if texts:
-            data[dept_dir.name] = texts
+            data[slug(dept_dir.name)] = texts  #normalize folder name
     return data
 
 def chunk_texts(texts: List[str], chunk_size=600, chunk_overlap=80) -> List[str]:
