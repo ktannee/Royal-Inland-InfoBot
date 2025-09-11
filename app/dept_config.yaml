@@ -1,0 +1,59 @@
+departments:
+  emergency:
+    keywords:
+      - "emergency"
+      - "er"
+      - "trauma"
+      - "urgent"
+  laboratory:
+    keywords:
+      - "lab"
+      - "laboratory"
+      - "blood test"
+      - "phlebotomy"
+      - "booking"
+      - "requisition"
+      - "fasting"
+      - "Lifelabs"
+  maternity:
+    keywords:
+      - "childbirth"
+      - "maternity"
+      - "obstetrics"
+      - "labour and birth"
+      - "pregnancy"
+      - "prenatal"
+      - "postpartum"
+      - "NICU"
+  imaging:
+    keywords:
+      - "imaging"
+      - "radiology"
+      - "CT"
+      - "MRI"
+      - "ultrasound"
+      - "x-ray"
+  surgery:
+    keywords:
+      - "surgery"
+      - "operating room"
+      - "pre-op"
+      - "post-op"
+      - "anesthesia"
+  visiting:
+    keywords:
+      - "visitor"
+      - "visiting"
+      - "parking"
+      - "hours"
+      - "amenities"
+      - "map"
+  mental health:
+    keywords:
+      - "mental health"
+      - "psychiatry"
+      - "counselling"
+      - "addictions"
+      - "substance use"
+
+fallback: "global"  # if router is uncertain, search this first, then broaden

@@ -1,49 +1,55 @@
 import streamlit as st
-from data_loader import load_raw_texts, chunk_texts
-from embeddings import build_faiss_index
-from rag_pipeline import retrieve, generate_answer
-from guardrails import pre_answer_guardrails, post_answer_guardrails
+from data_loader import load_and_chunk_by_dept
+from embeddings import build_all_indices
+from rag_pipeline import retrieve_with_routing, generate_answer
+from guardrails import pre_answer_guardrails, post_answer_guardrails, extract_contacts
 from config import DISCLAIMER
 
-st.set_page_config(page_title="RIH RAG Chatbot (Open-Source)", page_icon="🏥")
-st.title("🏥 Royal Inland Hospital Chatbot — Open Source MVP")
+st.set_page_config(page_title="RIH RAG Chatbot (Dept-Routed)", page_icon="🏥")
+st.title("🏥 Royal Inland Hospital Chatbot — Dept-Routed RAG")
 st.caption(DISCLAIMER)
 
-with st.expander("📥 One-time: Build/Refresh Knowledge Base"):
-    st.write("Add .html/.pdf/.txt into `data/hospital_docs` and click Build.")
-    if st.button("Build / Rebuild Index"):
-        texts = load_raw_texts("data/hospital_docs")
-        if not texts:
-            st.error("No documents found in data/hospital_docs")
-        else:
-            chunks = chunk_texts(texts)
-            build_faiss_index(chunks)
-            st.success(f"Indexed {len(chunks)} chunks.")
+with st.expander("📥 Build/Refresh Knowledge Base (per department)"):
+    st.write("Place docs under `data/hospital_docs/<department>/` then build.")
+    if st.button("Build / Rebuild All Indexes"):
+        build_all_indices()
+        st.success("All available department indexes rebuilt (including global).")
 
-query = st.text_input("Ask a question about Royal Inland Hospital:")
+query = st.text_input("Ask a hospital-related question (no personal info):")
 
 if query:
     try:
-        contexts, scores = retrieve(query, k=4)
+        contexts, scores, route_reason = retrieve_with_routing(query, k_per_dept=3, max_depts=2)
 
-        # ---- PRE-ANSWER GUARDRAILS ----
+        # PRE-GUARDRAILS (uses similarity scores)
         allow, msg = pre_answer_guardrails(query, scores)
         if not allow:
             st.warning(msg)
         else:
-            answer = generate_answer(query, contexts)
-            # ---- POST-ANSWER GUARDRAILS ----
-            ok, post_msg = post_answer_guardrails(answer)
-            if not ok:
-                st.warning(post_msg)
-            else:
+            phones, flags = extract_contacts(contexts)
+            if phones or flags:
                 st.markdown("### Answer")
-                st.write(answer)
+                lines = []
+                if flags:
+                    lines.append("• Call **{}**".format(",".join(flags)))
+                    if phones:
+                        lines.append("• Other numbers found: **{}**".format(",".join(phones)))
+                    lines.append("• For general health advice in BC: **HealthLink BC at 811**")
+                    st.write("\n".join(lines))
+            else: 
+                answer = generate_answer(query, contexts)
+                ok, post_msg = post_answer_guardrails(answer)
+                if not ok:
+                    st.warning(post_msg)
+                else:
+                    st.markdown("### Answer")
+                    st.write(answer)
 
-            with st.expander("Sources (retrieved context)"):
-                for i, c in enumerate(contexts, 1):
-                    st.write(f"**Chunk {i}:** (score ~ {scores[i-1]:.2f})")
+            with st.expander("Routing & Sources"):
+                st.write(f"**Routing**: {route_reason}")
+                for i, (c, s) in enumerate(zip(contexts, scores), 1):
+                    st.write(f"**Chunk {i}** (score ~ {s:.2f})")
                     st.write(c[:900] + ("…" if len(c) > 900 else ""))
 
     except FileNotFoundError:
-        st.warning("Index not built yet. Open the expander above and click **Build**.")
+        st.warning("Indexes not built yet. Open the expander above and click **Build**.")

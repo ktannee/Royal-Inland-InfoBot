@@ -5,6 +5,8 @@ from config import (
     RETRIEVAL_SIM_THRESHOLD, MIN_STRONG_MATCHES
 )
 
+PHONE_RE = re.compile(r"\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)?\d{3}[-.\s]?\d{4}\b")
+MHSU_SHORT = re.compile(r"\b310[-\s]?MHSU\b", re.IGNORECASE)
 # --- Keyword sets ---
 
 EMERGENCY_KEYWORDS = {
@@ -28,8 +30,11 @@ MEDICAL_ADVICE_PATTERNS = [
     r"\bis this cancer\b",
 ]
 
+CONTACT_INTENT = {"contact", "phone", "call", "number", "hours", "location",
+                  "where", "address", "how do i reach", "who do i call"}
+
 # Very light profanity/abuse filter (expand as needed)
-PROFANITY = {"fuck", "f***", "f**k", "bitch", "asshole", "stupid", "idiot"}
+PROFANITY = {"fuck you", "fuck", "f***", "f**k", "bitch", "asshole", "stupid", "idiot"}
 
 # Basic PII regex (heuristics; not perfect)
 EMAIL_RE   = re.compile(r"[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}")
@@ -44,6 +49,9 @@ def contains_emergency(text: str) -> bool:
 
 def requests_medical_advice(text: str) -> bool:
     t = text.lower()
+      # ✅ If clearly a contact/wayfinding request, do NOT treat as medical advice
+    if any(kw in t for kw in CONTACT_INTENT):
+        return False
     if any(w in t for w in PROFANITY):
         # profanity is handled separately, but still treat as out-of-scope
         return False
@@ -62,6 +70,9 @@ def retrieval_strength(scores: List[float]) -> Tuple[int, float]:
 
 def pre_answer_guardrails(user_text: str, retrieved_scores: List[float]):
     """Return (allow_generation: bool, message_if_blocked: str or None)."""
+    t = user_text.lower()
+    is_contact = any(k in t for k in CONTACT_INTENT)
+
     # 1) Emergencies
     if contains_emergency(user_text):
         return False, EMERGENCY_MESSAGE
@@ -81,6 +92,16 @@ def pre_answer_guardrails(user_text: str, retrieved_scores: List[float]):
     count, best = retrieval_strength(retrieved_scores)
     if count < MIN_STRONG_MATCHES:
         return False, LOW_CONF_FALLBACK
+    
+    # 5) Loosen the "abstain" rule for directory/helpline queries
+    strong = [s for s in retrieved_scores if s >= RETRIEVAL_SIM_THRESHOLD]
+    if not is_contact:
+        if len(strong) < MIN_STRONG_MATCHES:
+            return False, LOW_CONF_FALLBACK
+    else:
+        # for contact intent, allow if at least one strong match
+        if len(strong) < 1:
+            return False, LOW_CONF_FALLBACK
 
     return True, None
 
@@ -93,3 +114,13 @@ def post_answer_guardrails(generated_text: str):
             NON_URGENT_ADVICE_MESSAGE + " I can help with hospital locations, hours, and services if you’d like."
         )
     return True, None
+
+def extract_contacts(texts):
+    phones = set()
+    flags = set()
+    for t in texts:
+        for m in PHONE_RE.findall(t):
+            phones.add(m.strip())
+        if MHSU_SHORT.search(t):
+            flags.add("310-MHSU (6478)")
+    return sorted(phones), sorted(flags)
