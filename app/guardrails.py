@@ -1,6 +1,6 @@
 import re
 from typing import List, Tuple
-from config import (
+from app.config import (
     EMERGENCY_MESSAGE, NON_URGENT_ADVICE_MESSAGE, LOW_CONF_FALLBACK,
     RETRIEVAL_SIM_THRESHOLD, MIN_STRONG_MATCHES
 )
@@ -21,12 +21,12 @@ EMERGENCY_KEYWORDS = {
 MEDICAL_ADVICE_PATTERNS = [
     r"\bdiagnos(e|is|ing)\b",
     r"\bwhat (is|could be) my condition\b",
-    r"\bshould I take\b",
+    r"\bshould i take\b",
     r"\bprescribe\b",
     r"\btreatment plan\b",
     r"\binterpret (my )?(lab|test|report|mri|x-?ray|ct)\b",
     r"\bmy (mri|ct|scan|lab|test) (says|shows)\b",
-    r"\bdo I have\b",
+    r"\bdo i have\b",
     r"\bis this cancer\b",
 ]
 
@@ -89,18 +89,21 @@ def pre_answer_guardrails(user_text: str, retrieved_scores: List[float]):
         return False, NON_URGENT_ADVICE_MESSAGE
 
     # 4) Retrieval strength (hallucination guard)
-    count, best = retrieval_strength(retrieved_scores)
-    if count < MIN_STRONG_MATCHES:
-        return False, LOW_CONF_FALLBACK
+    # count, best = retrieval_strength(retrieved_scores)
+    # if count < MIN_STRONG_MATCHES:
+    #     return False, LOW_CONF_FALLBACK
     
     # 5) Loosen the "abstain" rule for directory/helpline queries
     strong = [s for s in retrieved_scores if s >= RETRIEVAL_SIM_THRESHOLD]
-    if not is_contact:
-        if len(strong) < MIN_STRONG_MATCHES:
-            return False, LOW_CONF_FALLBACK
+    # if not is_contact:
+    #     if len(strong) < MIN_STRONG_MATCHES:
+    # Contact/wayfinding: allow if at least one strong match
+    if is_contact:
+            if len(strong)<1:
+                return False, LOW_CONF_FALLBACK
     else:
-        # for contact intent, allow if at least one strong match
-        if len(strong) < 1:
+        # for non-contact intent, require the usual minimum strong matches
+        if len(strong) < MIN_STRONG_MATCHES:
             return False, LOW_CONF_FALLBACK
 
     return True, None
@@ -108,7 +111,8 @@ def pre_answer_guardrails(user_text: str, retrieved_scores: List[float]):
 def post_answer_guardrails(generated_text: str):
     """Light post-check to ensure we didn't accidentally provide medical advice."""
     # If the model slipped and gave advice words—very conservative check
-    if re.search(r"\b(you should|take|start|use|dose|dosage|prescribe|avoid)\b", generated_text.lower()):
+    t = generated_text.lower()
+    if re.search(r"\b(you should|take|start|use|dose|dosage|prescribe|avoid)\b", t):
         return (
             False,
             NON_URGENT_ADVICE_MESSAGE + " I can help with hospital locations, hours, and services if you’d like."
