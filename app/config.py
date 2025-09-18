@@ -28,3 +28,9 @@ RETRIEVAL_SIM_THRESHOLD = 0.35
 
 # Minimum number of strong matches required to answer
 MIN_STRONG_MATCHES = 2
+
+# Canonical switchboard or general contact for fallbacks
+HOSPITAL_SWITCHBOARD = "250-374-5111"   # update if you have a different master number
+
+# Static, well-known provincial line you want to show with contact answers
+HEALTHLINK_BC = "811"

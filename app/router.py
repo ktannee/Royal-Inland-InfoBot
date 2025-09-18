@@ -1,7 +1,7 @@
 import yaml, re
 from pathlib import Path
 from typing import List, Tuple
-from slug import slug
+from app.slug import slug
 
 CONFIG_PATH = Path("app/dept_config.yaml")
 
